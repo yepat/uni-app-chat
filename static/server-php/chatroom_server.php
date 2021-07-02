@@ -268,6 +268,8 @@ class Sock{
             $ar['type']='say';
             // $ar['name']=$this->users[$k]['name'];
             $ar['nrong']=$g['nr'];
+			//消息类型
+			$ar['msgType']=$g['msgType'];
             $key=$g['key'];
         }
         //推送信息

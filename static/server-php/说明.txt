@@ -1,2 +1,4 @@
 打开聊天服务器
 php chatroom_server.php
+上传文件
+upload_file.php

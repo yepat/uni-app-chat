@@ -435,13 +435,13 @@
 			},
 			// 选择图片发送
 			chooseImage() {
-				if(this.uncultivated){
-					uni.showModal({
-						content: '功能开发中',
-						showCancel: false
-					})
-					return
-				}
+				// if(this.uncultivated){
+				// 	uni.showModal({
+				// 		content: '功能开发中',
+				// 		showCancel: false
+				// 	})
+				// 	return
+				// }
 				this.getImage('album');
 			},
 			//拍照发送
@@ -468,12 +468,28 @@
 								success: (image) => {
 									console.log(image.width);
 									console.log(image.height);
-									let msg = {
-										url: res.tempFilePaths[i],
-										w: image.width,
-										h: image.height
-									};
-									this.sendMsg(msg, 'img');
+									// let msg = {
+									// 	url: res.tempFilePaths[i],
+									// 	w: image.width,
+									// 	h: image.height
+									// };
+									// this.sendMsg(msg, 'img');
+									uni.uploadFile({
+										url: 'http://127.0.0.1/php/upload_file.php',
+										// header:{
+										// 	'dlj-token': uni.getStorageSync('uni_id_token')
+										// },
+										filePath: res.tempFilePaths[i],
+										name: 'file',
+										formData: {
+											'user': 'test'
+										},
+										success: (uploadFileRes) => {
+											console.log('上传成功',uploadFileRes.data)
+											let msg = 'nr=http://127.0.0.1/php/'+uploadFileRes.data+'&key=all&msgType=img'
+											socket.send(msg)
+										}
+									});
 								}
 							});
 						}
@@ -516,7 +532,7 @@
 					text: content
 				}
 				// this.sendMsg(msg, 'text');
-				socket.send('nr='+this.esc(content)+'&key=all')
+				socket.send('nr='+this.esc(content)+'&key=all&msgType=text')
 				this.textMsg = ''; //清空输入框
 			},
 			//替换表情符号为图片
@@ -824,7 +840,7 @@
 						this.addUser(data.code, data.name);
 					} else if (data.type == "rmove") {
 						var name = this.getUserNameByCode(data.nrong);
-						// msg = "[" + data.time + "] " + name + " 退出聊天室";
+	
 						let _msg = {
 							text: "[" + data.time + "] " + name + " 退出聊天室"
 						}
@@ -848,14 +864,26 @@
 					}
 				}
 				if (msg != "") {
-					let _msg = {
-						text: msg
+					let _msg = {}
+					switch(data.msgType){
+						case 'text':
+							_msg = {
+								text: msg
+							}
+							this.sendMsg(_msg,'text',data)
+						break
+						case 'img':
+							_msg = {
+								url: msg,
+								w: 350,
+								h: 350
+							}
+							this.sendMsg(_msg,'img',data)
+						break
 					}
-					this.sendMsg(_msg,'text',data)
 				}
 				if (data.type != "say") {
 					console.log(this.userList);
-					// this.showOnLinePlayer(this.userList);
 				}
 			}
 		}
