@@ -1,0 +1,2 @@
+打开聊天服务器
+php chatroom_server.php
